@@ -1,0 +1,10 @@
+syntax: glob
+*.pyc
+*.egg-info
+*.o
+*.vim
+*.orig
+.DS_Store
+build
+misc
+example
