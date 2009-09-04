@@ -6,7 +6,7 @@ extern "C"{
     void * NewRigidBodyInfo(
         float mass,
         btDefaultMotionState* motion_state,
-        btBoxShape* shape,
+        btCollisionShape* shape,
         btVector3* inertia
     ){
         return new btRigidBody::btRigidBodyConstructionInfo(
@@ -150,5 +150,38 @@ extern "C"{
 
     void DeleteSequentialImpulseConstraintSolver(btSequentialImpulseConstraintSolver* solver){
         delete solver;
+    }
+
+    // triangle array
+    void * NewTriangleIndexVertexArray(int face_count, int* faces, int vertex_count, float* vertices){
+        return new btTriangleIndexVertexArray(face_count,faces,sizeof(int)*3,vertex_count,vertices,sizeof(float)*4);
+    }
+
+    void DeleteTriangleIndexVertexArray(btTriangleIndexVertexArray* array){
+        delete array;
+    }
+
+    // triangle mesh
+    
+    void * NewTriangleMesh(){
+        return new btTriangleMesh();
+    }
+
+    void * DeleteTriangleMesh(btTriangleMesh* mesh){
+        delete mesh;
+    }
+
+    void TriangleMeshAddTriangle(btTriangleMesh* mesh, btVector3* v1, btVector3* v2, btVector3* v3){
+        mesh->addTriangle(*v1, *v2, *v3);
+    }
+
+    // mesh shape
+
+    void * NewTriangleMeshShape(btStridingMeshInterface* mesh, unsigned char compress, unsigned char build_bhv){
+        return new btBvhTriangleMeshShape(mesh, compress==1, build_bhv==1);
+    }
+
+    void DeleteTriangleMeshShape(btBvhTriangleMeshShape* shape){
+        delete shape;
     }
 }

@@ -1,4 +1,4 @@
-from ctypes import cdll, c_void_p, c_float, c_int, Structure, byref, pointer
+from ctypes import cdll, c_void_p, c_float, c_int, c_byte, Structure, byref, pointer
 from .util import resource
 from .math3d import Matrix
 
@@ -109,12 +109,11 @@ class World(BulletObject):
     def step(self, delta, iterations=10):
         lib.WorldStepSimulation(self.handle, delta, iterations) 
 
-    def dynamic_box(mass, x, y, z, width, height, length):
-        shape = BoxShape(width, height, length)
-        return RigidBody(body_info)
-
     def box_shape(self, width, height, length):
         return BoxShape(width, height, length)
+
+    def mesh_shape(self, faces, vertices, compress=True, build_bhv=True):
+        return MeshShape(faces, vertices, compress, build_bhv)
 
     def add_body(self, x, y, z, shape, mass=0):
         transform = Transform(x, y, z)
@@ -148,6 +147,35 @@ class BoxShape(BulletObject):
     def calculate_inertia(self, mass, inertia):
         lib.BoxShapeCalculateInertia(self.handle, mass, byref(inertia))
 
+class MeshShape(BulletObject):
+    new = types(lib.NewTriangleMeshShape, c_void_p, c_void_p, c_byte, c_byte)
+    delete = lib.DeleteTriangleMeshShape
+
+    def __init__(self, faces, vertices, compress, build_bhv):
+        index_count = len(faces)
+        face_count = index_count/3
+        vertex_count = len(vertices)/3
+
+        #does not work for unknown reasons
+        #faces = (c_int*len(faces))(*faces)
+        #vertices = (c_float*len(vertices2))(*vertices2)
+        #self.array = lib.NewTriangleIndexVertexArray(face_count, faces, vertex_count, vertices)
+        self.array = lib.NewTriangleMesh()
+        
+        for i in range(0, index_count, 3):
+            i1, i2, i3 = faces[i:i+3]
+            v1 = Vector(*vertices[i1*3:i1*3+3])
+            v2 = Vector(*vertices[i2*3:i2*3+3])
+            v3 = Vector(*vertices[i3*3:i3*3+3])
+            lib.TriangleMeshAddTriangle(self.array, byref(v1), byref(v2), byref(v3))
+
+        BulletObject.__init__(self, self.array, int(compress), int(build_bhv))
+
+    def __del__(self):
+        #lib.DeleteTriangleIndexVertexArray(self.array) 
+        lib.DeleteTriangleMesh(self.array) 
+        lib.DeleteTriangleMeshShape(self.handle)
+
 class Transform(BulletObject):
     new = lib.NewTransform
     delete = lib.DeleteTransform
@@ -175,7 +203,6 @@ class Transform(BulletObject):
         matrix = (c_float*16)()
         lib.TransformGetOpengGLMatrix(self.handle, matrix)
         return matrix
-
 
 class MotionState(BulletObject):
     new = lib.NewMotionState
