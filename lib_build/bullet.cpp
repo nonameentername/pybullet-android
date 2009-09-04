@@ -154,7 +154,7 @@ extern "C"{
 
     // triangle array
     void * NewTriangleIndexVertexArray(int face_count, int* faces, int vertex_count, float* vertices){
-        return new btTriangleIndexVertexArray(face_count,faces,sizeof(int)*3,vertex_count,vertices,sizeof(float)*4);
+        return new btTriangleIndexVertexArray(face_count,faces,sizeof(int)*3,vertex_count,vertices,sizeof(float)*3);
     }
 
     void DeleteTriangleIndexVertexArray(btTriangleIndexVertexArray* array){

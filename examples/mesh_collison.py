@@ -91,7 +91,7 @@ if __name__ == '__main__':
     world = World()
     world.gravity = 0, -10, 0
 
-    ground_size = (25, 25, 25)
+    ground_size = (50, 25, 50)
     box_size = (2,2,2)
 
     bunny = Bunny(world)

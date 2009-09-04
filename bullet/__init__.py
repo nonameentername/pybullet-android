@@ -152,28 +152,16 @@ class MeshShape(BulletObject):
     delete = lib.DeleteTriangleMeshShape
 
     def __init__(self, faces, vertices, compress, build_bhv):
-        index_count = len(faces)
-        face_count = index_count/3
+        face_count = len(faces)/3
         vertex_count = len(vertices)/3
 
-        #does not work for unknown reasons
-        #faces = (c_int*len(faces))(*faces)
-        #vertices = (c_float*len(vertices2))(*vertices2)
-        #self.array = lib.NewTriangleIndexVertexArray(face_count, faces, vertex_count, vertices)
-        self.array = lib.NewTriangleMesh()
-        
-        for i in range(0, index_count, 3):
-            i1, i2, i3 = faces[i:i+3]
-            v1 = Vector(*vertices[i1*3:i1*3+3])
-            v2 = Vector(*vertices[i2*3:i2*3+3])
-            v3 = Vector(*vertices[i3*3:i3*3+3])
-            lib.TriangleMeshAddTriangle(self.array, byref(v1), byref(v2), byref(v3))
-
+        self.faces = (c_int*len(faces))(*faces)
+        self.vertices = (c_float*len(vertices))(*vertices)
+        self.array = lib.NewTriangleIndexVertexArray(face_count, self.faces, vertex_count, self.vertices)
         BulletObject.__init__(self, self.array, int(compress), int(build_bhv))
 
     def __del__(self):
-        #lib.DeleteTriangleIndexVertexArray(self.array) 
-        lib.DeleteTriangleMesh(self.array) 
+        lib.DeleteTriangleIndexVertexArray(self.array) 
         lib.DeleteTriangleMeshShape(self.handle)
 
 class Transform(BulletObject):
