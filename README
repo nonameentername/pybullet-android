@@ -1,8 +1,10 @@
 how to get ctypes_bullet compile on x86-64 linux:
 
     tar -zxf bullet-2.75-rc7.tgz
-    cmake bullet-2.75-rc7 -DBUILD_EXTRAS=NO -DBUILD_DEMOS=NO -DCMAKE_CXX_FLAGS="-fPIC"
-    cd bullet-2.75-rc7; make; cd ..
+    cd bullet-2.75-rc7
+    cmake . -DBUILD_EXTRAS=NO -DBUILD_DEMOS=NO -DCMAKE_CXX_FLAGS="-fPIC"
+    make
+    cd ..
     sh lib_build/make.sh
 
 If there were no errors, you are ready to go:
