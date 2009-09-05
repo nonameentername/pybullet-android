@@ -1,4 +1,4 @@
-from ctypes import cdll, c_void_p, c_float, c_int, c_byte, Structure, byref, pointer
+from ctypes import cdll, c_void_p, c_float, c_int, c_byte, Structure, byref, pointer, CFUNCTYPE
 from .util import resource
 from .math3d import Matrix
 
@@ -78,6 +78,7 @@ class World(BulletObject):
     new = lib.NewDiscreteDynamicsWorld
     delete = lib.DeleteDiscreteDynamicsWorld
     types(lib.WorldStepSimulation, None, c_void_p, c_float, c_int)
+    types(lib.WorldSetTickCallback, None, c_void_p, c_void_p)
 
     def __init__(self):
         self.collision_config = CollisionConfiguration()
@@ -135,6 +136,12 @@ class World(BulletObject):
         x, y, z = position
         shape = self.box_shape(*size)
         return self.add_body(x, y, z, shape, mass)
+
+    def set_tick(self, callback):
+        self._tick = CFUNCTYPE(None, c_float)(callback)
+        lib.WorldSetTickCallback(self.handle, self._tick)
+    tick = property(None, set_tick)
+    del set_tick
 
 class BoxShape(BulletObject):
     new = types(lib.NewBoxShape, c_void_p, c_float, c_float, c_float)
@@ -255,28 +262,37 @@ class RigidBody(BulletObject):
         return matrix
         '''
 
-    def add_force(self, force, relpos=(0,0,0)):
-        force = Vector(*force)
-        relpos = Vector(*relpos)
-        lib.RigidBodyAddForce(self.handle, byref(force), byref(relpos)) 
-    
-    def add_impulse(self, impulse, relpos=(0,0,0)):
-        impulse = Vector(*impulse)
-        relpos = Vector(*relpos)
-        lib.RigidBodyAddImpulse(self.handle, byref(impulse), byref(relpos)) 
-    
-    def add_rel_impulse(self, impulse, relpos=(0,0,0)):
-        impulse = Vector(*impulse)
-        relpos = Vector(*relpos)
-        lib.RigidBodyAddRelImpulse(self.handle, byref(impulse), byref(relpos)) 
+    def add_force(self, linear=(0,0,0), torque=(0,0,0), relative=True):
+        if relative:
+            if linear != (0,0,0):
+                linear = Vector(*linear)
+                lib.RigidBodyAddRelForce(self.handle, byref(linear))
+            if torque != (0,0,0):
+                torque = Vector(*torque)
+                lib.RigidBodyAddRelTorque(self.handle, byref(torque))
+        else:
+            if linear != (0,0,0):
+                linear = Vector(*linear)
+                lib.RigidBodyAddForce(self.handle, byref(linear))
+            if torque != (0,0,0):
+                torque = Vector(*torque)
+                lib.RigidBodyAddTorque(self.handle, byref(torque))
 
-    def add_torque_impulse(self, torque):
-        torque = Vector(*torque)
-        lib.RigidBodyAddTorqueImpulse(self.handle, byref(torque)) 
+    def add_impulse(self, linear=(0,0,0), torque=(0,0,0), relative=True):
+        if relative:
+            if linear != (0,0,0):
+                linear = Vector(*linear)
+                lib.RigidBodyAddRelImpulse(self.handle, byref(linear)) 
+            if torque != (0,0,0):
+                torque = Vector(*torque)
+                lib.RigidBodyAddRelTorqueImpulse(self.handle, byref(torque)) 
+        else:
+            if linear != (0,0,0):
+                linear = Vector(*linear)
+                lib.RigidBodyAddImpulse(self.handle, byref(linear)) 
+            if torque != (0,0,0):
+                torque = Vector(*torque)
+                lib.RigidBodyAddTorqueImpulse(self.handle, byref(torque)) 
     
-    def add_rel_torque_impulse(self, torque):
-        torque = Vector(*torque)
-        lib.RigidBodyAddRelTorqueImpulse(self.handle, byref(torque)) 
-
     def disable_deactivation(self):
         lib.RigidBodyDisableDeactivation(self.handle)

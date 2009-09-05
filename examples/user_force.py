@@ -42,26 +42,28 @@ if __name__ == '__main__':
         fps.draw()
         description.draw()
 
-    @window.event
-    def on_key_press(symbol, modifiers):
-        if symbol == key.UP:
-            box.add_impulse(linear=(0,5,0))
-        elif symbol == key.DOWN:
-            box.add_impulse(linear=(0,-5,0))
-        elif symbol == key.LEFT:
-            box.add_impulse(linear=(-5,0,0))
-        elif symbol == key.RIGHT:
-            box.add_impulse(linear=(5,0,0))
-        elif symbol == key.DELETE:
-            box.add_impulse(torque=(0,0,5))
-        elif symbol == key.PAGEDOWN:
-            box.add_impulse(torque=(0,0,-5))
-        elif symbol == key.HOME:
-            box.add_impulse(torque=(-5,0,0))
-        elif symbol == key.END:
-            box.add_impulse(torque=(5,0,0))
+    keys = pyglet.window.key.KeyStateHandler()
+    window.push_handlers(keys)
 
     def simulate(delta):
+        f = 5000*delta
+        if keys[key.UP]:
+            box.add_force(linear=(0,f,0))
+        if keys[key.DOWN]:
+            box.add_force(linear=(0,-f,0))
+        if keys[key.LEFT]:
+            box.add_force(linear=(-f,0,0))
+        if keys[key.RIGHT]:
+            box.add_force(linear=(f,0,0))
+        if keys[key.DELETE]:
+            box.add_force(torque=(0,0,f))
+        if keys[key.PAGEDOWN]:
+            box.add_force(torque=(0,0,-f))
+        if keys[key.HOME]:
+            box.add_force(torque=(-f,0,0))
+        if keys[key.PAGEDOWN]:
+            box.add_force(torque=(f,0,0))
+
         world.step(delta, iterations=10)
     schedule_interval(simulate, 0.005)
     
