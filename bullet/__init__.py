@@ -254,3 +254,29 @@ class RigidBody(BulletObject):
         matrix.quaternion = self.quaternion
         return matrix
         '''
+
+    def add_force(self, force, relpos=(0,0,0)):
+        force = Vector(*force)
+        relpos = Vector(*relpos)
+        lib.RigidBodyAddForce(self.handle, byref(force), byref(relpos)) 
+    
+    def add_impulse(self, impulse, relpos=(0,0,0)):
+        impulse = Vector(*impulse)
+        relpos = Vector(*relpos)
+        lib.RigidBodyAddImpulse(self.handle, byref(impulse), byref(relpos)) 
+    
+    def add_rel_impulse(self, impulse, relpos=(0,0,0)):
+        impulse = Vector(*impulse)
+        relpos = Vector(*relpos)
+        lib.RigidBodyAddRelImpulse(self.handle, byref(impulse), byref(relpos)) 
+
+    def add_torque_impulse(self, torque):
+        torque = Vector(*torque)
+        lib.RigidBodyAddTorqueImpulse(self.handle, byref(torque)) 
+    
+    def add_rel_torque_impulse(self, torque):
+        torque = Vector(*torque)
+        lib.RigidBodyAddRelTorqueImpulse(self.handle, byref(torque)) 
+
+    def disable_deactivation(self):
+        lib.RigidBodyDisableDeactivation(self.handle)

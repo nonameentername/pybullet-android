@@ -38,6 +38,37 @@ extern "C"{
         *quaternion = body->getOrientation();
     }
 
+    void RigidBodyAddForce(btRigidBody* body, btVector3* force, btVector3* rel_pos){
+        body->applyForce(*force, *rel_pos);
+    }
+
+    void RigidBodyAddTorque(btRigidBody* body, btVector3* torque){
+        body->applyTorque(*torque);
+    }
+
+    void RigidBodyAddImpulse(btRigidBody* body, btVector3* impulse, btVector3* rel_pos){
+        body->applyImpulse(*impulse, *rel_pos);
+    }
+    
+    void RigidBodyAddTorqueImpulse(btRigidBody* body, btVector3* torque){
+        body->applyTorqueImpulse(*torque);
+    }
+
+    void RigidBodyDisableDeactivation(btRigidBody* body){
+        body->setActivationState(DISABLE_DEACTIVATION);
+    }
+
+    void RigidBodyAddRelImpulse(btRigidBody* body, btVector3* impulse, btVector3* rel_pos){
+        btVector3 rotated_impulse = quatRotate(body->getOrientation(), *impulse);
+        btVector3 rotated_rel_pos = quatRotate(body->getOrientation(), *rel_pos);
+        body->applyImpulse(rotated_impulse, rotated_rel_pos);
+    }
+    
+    void RigidBodyAddRelTorqueImpulse(btRigidBody* body, btVector3* torque){
+        btVector3 rotated_torque = quatRotate(body->getOrientation(), *torque);
+        body->applyTorqueImpulse(rotated_torque);
+    }
+
     // shape
     void * NewBoxShape(float x, float y, float z){
         return new btBoxShape(btVector3(x, y, z));
