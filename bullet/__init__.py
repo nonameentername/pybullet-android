@@ -33,6 +33,44 @@ class Vector(Structure):
     def __iter__(self):
         return iter((self.x, self.y, self.z))
 
+    def __sub__(self, other):
+        return Vector(
+            self.x - other.x,
+            self.y - other.y,
+            self.z - other.z,
+        )
+
+    @property
+    def magnitude(self):
+        return self.x**2 + self.y**2 + self.z**2
+
+    @property
+    def length(self):
+        return self.magnitude**0.5
+
+    @property
+    def normalized(self):
+        return self / self.length
+
+    def __div__(self, scalar):
+        return Vector(
+            self.x / scalar,
+            self.y / scalar,
+            self.z / scalar,
+        )
+
+    def __mul__(self, scalar):
+        return Vector(
+            self.x * scalar,
+            self.y * scalar,
+            self.z * scalar,
+        )
+
+    @property
+    def inversed(self):
+        return self * -1
+        
+
 class Quaternion(Structure):
     _fields_ = [
         ('x', c_float),
@@ -149,10 +187,17 @@ class BoxShape(BulletObject):
     types(lib.BoxShapeCalculateInertia, None, c_void_p, c_float, c_void_p)
 
     def __init__(self, width, height, length):
+        self.width = width
+        self.height = height
+        self.length = length
         BulletObject.__init__(self, width, height, length)
 
     def calculate_inertia(self, mass, inertia):
         lib.BoxShapeCalculateInertia(self.handle, mass, byref(inertia))
+
+    @property
+    def size(self):
+        return self.width, self.height, self.length
 
 class MeshShape(BulletObject):
     new = types(lib.NewTriangleMeshShape, c_void_p, c_void_p, c_byte, c_byte)
@@ -219,6 +264,7 @@ class RigidBodyInfo(BulletObject):
     delete = lib.DeleteRigidBodyInfo
 
     def __init__(self, mass, motion_state, shape, inertia):
+        self.mass = mass
         self.motion_state = motion_state
         self.shape = shape
         self.inertia = inertia
@@ -237,6 +283,14 @@ class RigidBody(BulletObject):
     def __init__(self, info):
         self.info = info
         BulletObject.__init__(self, info.handle)
+
+    @property
+    def size(self):
+        return self.info.shape.size 
+
+    @property
+    def mass(self):
+        return self.info.mass
 
     @property
     def motion_state(self):
