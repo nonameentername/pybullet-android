@@ -64,12 +64,12 @@ if __name__ == '__main__':
     keys = pyglet.window.key.KeyStateHandler()
     window.push_handlers(keys)
 
-    constant = 20.0
+    constant = 300.0
     def simulate(delta):
         for i, body1 in enumerate(bodies):
             for body2 in bodies[i+1:]:
                 vec = body1.position - body2.position
-                gravity = (body1.mass*body2.mass/vec.magnitude) * constant
+                gravity = (body1.mass*body2.mass/vec.magnitude) * constant * delta
                 normal = vec.normalized
                 body1.add_force(linear=normal.inversed*gravity, relative=False)
                 body2.add_force(linear=normal*gravity, relative=False)

@@ -19,6 +19,7 @@ class BulletObject(object):
         self.delete(self.handle)
 
 class Vector(Structure):
+    types(lib.VectorInterpolate, None, c_void_p, c_void_p, c_void_p, c_float)
     _fields_ = [
         ('x', c_float),
         ('y', c_float),
@@ -39,6 +40,11 @@ class Vector(Structure):
             self.y - other.y,
             self.z - other.z,
         )
+
+    def interpolate(self, other, scalar):
+        result = Vector()
+        lib.VectorInterpolate(byref(self), byref(other), byref(result), scalar)
+        return result
 
     @property
     def magnitude(self):
@@ -72,6 +78,8 @@ class Vector(Structure):
         
 
 class Quaternion(Structure):
+    types(lib.QuaternionInterpolate, None, c_void_p, c_void_p, c_void_p, c_float)
+
     _fields_ = [
         ('x', c_float),
         ('y', c_float),
@@ -88,6 +96,10 @@ class Quaternion(Structure):
     def __iter__(self):
         return iter((self.x, self.y, self.z, self.w))
 
+    def interpolate(self, other, scalar):
+        result = Quaternion()
+        lib.QuaternionInterpolate(byref(self), byref(other), byref(result), scalar)
+        return result
 
 class CollisionConfiguration(BulletObject):
     new = lib.NewDefaultCollisionConfiguration
@@ -143,6 +155,7 @@ class World(BulletObject):
 
     def add(self, body):
         self.bodies.append(body)
+        body.world = self
         lib.WorldAddBody(self.handle, body.handle)
 
     def step(self, delta, iterations=10):
@@ -169,6 +182,10 @@ class World(BulletObject):
         body = RigidBody(body_info)
         self.add(body)
         return body
+
+    def remove(self, body):
+        body.world = None
+        lib.WorldRemoveBody(self.handle, body.handle)
 
     def add_box_body(self, position, size, mass=0):
         x, y, z = position
@@ -284,6 +301,9 @@ class RigidBody(BulletObject):
         self.info = info
         BulletObject.__init__(self, info.handle)
 
+    def remove(self):
+        self.world.remove(self)
+
     @property
     def size(self):
         return self.info.shape.size 
@@ -296,15 +316,27 @@ class RigidBody(BulletObject):
     def motion_state(self):
         return self.info.motion_state
 
-    @property
-    def position(self):
-        return self.motion_state.world_transform.origin
+    def get_position(self):
+        position = Vector()
+        lib.RigidBodyGetPosition(self.handle, byref(position))
+        return position
+    
+    def set_position(self, position):
+        position = Vector(*position)
+        lib.RigidBodySetPosition(self.handle, byref(position))
+    position = property(get_position, set_position)
+    del get_position, set_position
 
-    @property
-    def quaternion(self):
+    def get_quaternion(self):
         quaternion = Quaternion()
         lib.RigidBodyGetQuaternion(self.handle, byref(quaternion))
         return quaternion
+    
+    def set_quaternion(self, quaternion):
+        quaternion = Quaternion(*quaternion)
+        lib.RigidBodySetQuaternion(self.handle, byref(quaternion))
+    quaternion = property(get_quaternion, set_quaternion)
+    del get_quaternion, set_quaternion
 
     @property
     def matrix(self):

@@ -2,6 +2,17 @@
 #include <stdio.h>
 
 extern "C"{
+    // vector
+    void VectorInterpolate(btVector3* src, btVector3* target, btVector3* result, float scalar){
+        *result = src->lerp(*target, scalar);
+    }
+
+    // quaternion
+
+    void QuaternionInterpolate(btQuaternion* src, btQuaternion* target, btQuaternion* result, float scalar){
+        *result = src->slerp(*target, scalar);
+    }
+
     // rigid body info
     void * NewRigidBodyInfo(
         float mass,
@@ -34,8 +45,32 @@ extern "C"{
         return body->getMotionState();
     }
 
+    void RigidBodyGetPosition(btRigidBody* body, btVector3* vector){
+        btTransform transform;
+        body->getMotionState()->getWorldTransform(transform);
+        *vector = transform.getOrigin();
+    }
+   
+    void RigidBodySetPosition(btRigidBody* body, btVector3* vector){
+        btTransform transform;
+        btMotionState* motion_state = body->getMotionState();
+        motion_state->getWorldTransform(transform);
+        transform.setOrigin(*vector);
+        motion_state->setWorldTransform(transform);
+    }
+
     void RigidBodyGetQuaternion(btRigidBody* body, btQuaternion* quaternion){
-        *quaternion = body->getOrientation();
+        btTransform transform;
+        body->getMotionState()->getWorldTransform(transform);
+        transform.getBasis().getRotation(*quaternion);
+    }
+   
+    void RigidBodySetQuaternion(btRigidBody* body, btQuaternion* quaternion){
+        btTransform transform;
+        btMotionState* motion_state = body->getMotionState();
+        motion_state->getWorldTransform(transform);
+        transform.getBasis().setRotation(*quaternion);
+        motion_state->setWorldTransform(transform);
     }
 
     // add force
@@ -154,6 +189,10 @@ extern "C"{
 
     void WorldAddBody(btDiscreteDynamicsWorld* world, btRigidBody* body){
         world->addRigidBody(body);
+    }
+    
+    void WorldRemoveBody(btDiscreteDynamicsWorld* world, btRigidBody* body){
+        world->removeRigidBody(body);
     }
 
     void WorldStepSimulation(btDiscreteDynamicsWorld* world, float delta, int iterations){
