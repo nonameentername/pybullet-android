@@ -1,6 +1,7 @@
 from ctypes import cdll, c_void_p, c_float, c_int, c_byte, Structure, byref, pointer, CFUNCTYPE
 from .util import resource
 from .math3d import Matrix
+from math import sin, acos
 
 lib = cdll.LoadLibrary(
     resource(__file__, '_bullet.so')
@@ -96,10 +97,45 @@ class Quaternion(Structure):
     def __iter__(self):
         return iter((self.x, self.y, self.z, self.w))
 
+    '''
+    #bullet quaternion interpolation does not work
     def interpolate(self, other, scalar):
         result = Quaternion()
         lib.QuaternionInterpolate(byref(self), byref(other), byref(result), scalar)
         return result
+    '''
+    
+    def interpolate(self, other, t):
+        tmp = Quaternion()
+
+        cosom = self.x*other.x + self.y*other.y + self.z*other.z + self.w*other.w
+        if cosom < 0:
+            cosom = -cosom
+            tmp.x = -other.x
+            tmp.y = -other.y
+            tmp.z = -other.z
+            tmp.w = -other.w
+        else:
+            tmp.x = other.x
+            tmp.y = other.y
+            tmp.z = other.z
+            tmp.w = other.w
+    
+        if 1.0 - cosom > 0.1:
+            omega = acos(cosom)
+            sinom = sin(omega)
+            scale0 = sin((1.0-t) * omega) / sinom
+            scale1 = sin(t*omega) / sinom
+        else:
+            scale0 = 1.0 - t
+            scale1 = t
+
+        return Quaternion(
+            x = scale0 * self.x + scale1 * tmp.x,
+            y = scale0 * self.y + scale1 * tmp.y,
+            z = scale0 * self.z + scale1 * tmp.z,
+            w = scale0 * self.w + scale1 * tmp.w,
+        )
 
 class CollisionConfiguration(BulletObject):
     new = lib.NewDefaultCollisionConfiguration
