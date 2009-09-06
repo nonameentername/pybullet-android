@@ -33,8 +33,7 @@ class Bunny(object):
             self.display.draw(GL_TRIANGLES)
 
 if __name__ == '__main__':
-    config = Config(buffers=2, samples=4)
-    window = Window(fullscreen=True, vsync=False, config=config)
+    window = Window(fullscreen=True, vsync=False)
     gl_init()
     fps = ClockDisplay()
     description = Label('mouse drag to rotate, space to create more cubes',

@@ -1,11 +1,7 @@
-from ctypes import cdll, c_void_p, c_float, c_int, c_byte, Structure, byref, pointer, CFUNCTYPE
-from .util import resource
-from .math3d import Matrix
 from math import sin, acos
-
-lib = cdll.LoadLibrary(
-    resource(__file__, '_bullet.so')
-)
+from ctypes import cdll, c_void_p, c_float, c_int, c_byte, Structure, byref, pointer, CFUNCTYPE
+from .lib import lib
+from .math3d import Matrix
 
 def types(fun, restype, *argtypes):
     fun.restype = restype

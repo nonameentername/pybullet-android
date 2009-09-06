@@ -16,8 +16,7 @@ from bullet import World
 from common import cube, gl_init
     
 if __name__ == '__main__':
-    config = Config(buffers=2, samples=4)
-    window = Window(fullscreen=True, vsync=False, config=config)
+    window = Window(fullscreen=True, vsync=False)
     gl_init()
     fps = ClockDisplay()
     description = Label('cursor keys for movement, delete/page down/home/end for rotate',

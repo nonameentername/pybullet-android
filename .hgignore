@@ -8,3 +8,4 @@ syntax: glob
 build
 misc
 bullet-2.75-rc7
+lib_build/bullet-*.*
