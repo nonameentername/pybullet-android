@@ -414,3 +414,7 @@ class RigidBody(BulletObject):
     
     def disable_deactivation(self):
         lib.RigidBodyDisableDeactivation(self.handle)
+
+    types(lib.RigidBodySetDamping, None, c_void_p, c_float, c_float)
+    def set_damping(self, linear=0, angular=0):
+        lib.RigidBodySetDamping(self.handle, linear, angular) 

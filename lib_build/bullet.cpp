@@ -41,6 +41,10 @@ extern "C"{
         delete body;
     }
 
+    void RigidBodySetDamping(btRigidBody* body, float linear, float angular){
+        body->setDamping(linear, angular);
+    }
+
     void * RigidBodyGetMotionState(btRigidBody* body){
         return body->getMotionState();
     }
