@@ -22,7 +22,7 @@ setup(
     include_package_data    = True,
     packages                = ['bullet'],
     package_data            = {
-        'bullet' : ['*.so'],
+        'bullet' : ['bin/*.so'],
     },
     install_requires        = [],
     platforms               = ['any'],
