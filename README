@@ -1,3 +1,6 @@
+how to build for android:
+    ./build.sh
+
 how to get ctypes_bullet compile on x86-64 linux:
 
     tar -zxf bullet-2.75-rc7.tgz
