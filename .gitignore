@@ -3,3 +3,5 @@ build/
 libs/
 obj/
 bullet/bin/
+dist/
+bullet.egg-info/

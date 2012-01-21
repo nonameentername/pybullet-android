@@ -19,7 +19,7 @@ include $(PREBUILT_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := bullet
-LOCAL_MODULE_FILENAME := bullet-x86
+LOCAL_MODULE_FILENAME := bullet
 LOCAL_SRC_FILES := bullet.cpp
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../bullet-android/bullet/bullet/src/
 LOCAL_STATIC_LIBRARIES := libBulletDynamics libBulletCollision libLinearMath
